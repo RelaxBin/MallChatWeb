@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import { ref, type PropType, computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { ImageBody } from '@/services/types'
 import { useImgPreviewStore } from '@/stores/preview'
 import { formatImage } from '@/utils'
 
-const props = defineProps({
-  body: {
-    type: Object as PropType<ImageBody>,
-    required: true,
-  },
-})
+const props = defineProps<{ body: ImageBody }>()
 
 const imageStore = useImgPreviewStore()
 const hasLoadError = ref(false)
@@ -38,7 +33,11 @@ const handleError = () => {
 </script>
 
 <template>
-  <div class="image" :style="{ height: getImageHeight + 'px' }" @click="imageStore.show(body?.url)">
+  <div
+    class="image"
+    :style="{ height: getImageHeight + 'px' }"
+    @click="imageStore.show(body?.url as string)"
+  >
     <div v-if="hasLoadError" class="image-slot" :style="getWidthStyle()">
       <Icon icon="dazed" :size="36" colorful />
       加载失败
@@ -47,8 +46,10 @@ const handleError = () => {
       <img
         v-if="body?.url"
         :src="body?.url"
-        @click="imageStore.show(body?.url)"
+        draggable="false"
+        @click="imageStore.show(body?.url as string)"
         @error="handleError"
+        :alt="body?.url"
       />
     </template>
   </div>

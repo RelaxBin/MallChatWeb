@@ -1,18 +1,13 @@
 <script setup lang="ts">
-import { type PropType, computed } from 'vue'
+import { computed } from 'vue'
 import { Close } from '@element-plus/icons-vue'
-import { getFileSuffix, formatBytes } from '@/utils'
+import { formatBytes, getFileSuffix } from '@/utils'
 import type { FileBody } from '@/services/types'
 import useDownloadQuenuStore from '@/stores/downloadQuenu'
 
 const { downloadObjMap, download, quenu, cancelDownload } = useDownloadQuenuStore()
 
-const props = defineProps({
-  body: {
-    type: Object as PropType<FileBody>,
-    required: true,
-  },
-})
+const props = defineProps<{ body: FileBody }>()
 
 // 下载文件
 const downloadFile = () => {
@@ -46,9 +41,11 @@ const isQuenu = computed(() => {
       <span class="file-name">{{ body?.fileName || '未知文件' }}</span>
       <span class="file-size">{{ formatBytes(body?.size) }}</span>
     </div>
-    <el-text v-if="isQuenu" class="mx-1" size="small" type="warning" @click="cancelDownloadFile"
-      >等待下载
-      <el-icon><Close /></el-icon>
+    <el-text v-if="isQuenu" class="mx-1" size="small" type="warning" @click="cancelDownloadFile">
+      等待下载
+      <el-icon>
+        <Close />
+      </el-icon>
     </el-text>
     <Icon v-else-if="!isDownloading" icon="xiazai" :size="22" @click="downloadFile" />
     <el-progress

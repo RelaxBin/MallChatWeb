@@ -3,7 +3,15 @@
  * 注意：请使用TSDoc规范进行注释，以便在使用时能够获得良好提示。
  * @see TSDoc规范https://tsdoc.org/
  **/
-import type { OnlineEnum, MsgEnum, ActEnum, SexEnum, IsYetEnum, MarkEnum } from '@/enums'
+import type {
+  ActEnum,
+  IsYetEnum,
+  MarkEnum,
+  MsgEnum,
+  OnlineEnum,
+  RoomTypeEnum,
+  SexEnum,
+} from '@/enums'
 
 /***/
 export type ListResponse<T extends unknown> = {
@@ -19,6 +27,19 @@ export type CacheBadgeReq = {
   lastModifyTime?: number
   /** 徽章 ID */
   itemId: number
+}
+
+export type GroupDetailReq = {
+  /** 群头像 */
+  avatar: string
+  /** 群名称 */
+  groupName: string
+  /** 在线人数 */
+  onlineNum: number
+  /** 成员角色 1群主 2管理员 3普通成员 4踢出群聊 */
+  role: number
+  /** 房间id */
+  roomId: number
 }
 
 export type CacheBadgeItem = {
@@ -71,6 +92,8 @@ export type UserItem = {
   lastOptTime: number
   /** 用户名称 */
   name: string
+  /** 角色ID */
+  roleId?: number
   /** uid */
   uid: number
 }
@@ -154,6 +177,11 @@ export type RevokedMsgType = {
   roomId?: number
   /** 撤回人ID */
   recallUid?: number
+}
+
+export type EmojiItem = {
+  expressionUrl: string
+  id: number
 }
 
 // -------------------- ⬇消息体类型定义⬇ ----------------
@@ -245,9 +273,19 @@ export type TextBody = {
   reply: ReplyType
   /**
    * 消息链接映射
-   * @deprecated 即将废弃？
    */
-  urlTitleMap: Record<string, string>
+  urlContentMap: Record<
+    string,
+    {
+      title: string
+      description: string
+      image: string
+    }
+  >
+}
+/** 表情消息 */
+export type EmojiBody = {
+  url: string
 }
 
 /**
@@ -256,10 +294,12 @@ export type TextBody = {
 export type MsgType = {
   /** 消息ID */
   id: number
+  /**  房间 ID */
+  roomId: number
   /** 消息类型 */
   type: MsgEnum
   /** 动态消息体-`根据消息类型变化` */
-  body: TextBody | ImageBody | VoiceBody | VideoBody | FileBody | any
+  body: TextBody | ImageBody | VoiceBody | VideoBody | FileBody | EmojiBody | any
   /** 发送时间戳 */
   sendTime: number
   /** 消息互动信息 */
@@ -298,4 +338,74 @@ export type MessageReq = {
     /** 任意 */
     [key: string]: any
   }
+}
+
+/** 申请状态 */
+export enum RequestFriendAgreeStatus {
+  /** 1待审批 */
+  Waiting = 1,
+  /** 2同意 */
+  Agree,
+}
+
+/** 请求添加好友的列表项 */
+export type RequestFriendItem = {
+  /** 申请id */
+  applyId: number
+  /** 申请信息 */
+  msg: string
+  /** 申请状态 1待审批 2同意 */
+  status: RequestFriendAgreeStatus
+  /** 申请类型 1加好友 */
+  type: number
+  /** 申请人uid */
+  uid: number
+  /** 会话 ID */
+  roomId: number
+}
+/** 联系人的列表项 */
+export type ContactItem = {
+  /** 在线状态 1在线 2离线 */
+  activeStatus: OnlineEnum
+  /** 最后一次上下线时间 */
+  lastOptTime: number
+  uid: number
+}
+
+/** 是否全员展示的会话 0否 1是 */
+export enum IsAllUserEnum {
+  /** 0否 */
+  Not,
+  /** 1是 */
+  Yes,
+}
+
+/** 会话列表项 */
+export type SessionItem = {
+  /** 房间最后活跃时间(用来排序) */
+  activeTime: number
+  /** 会话头像 */
+  avatar: string
+  /** 是否全员展示的会话 0否 1是 */
+  hot_Flag: IsAllUserEnum
+  /** 会话名称 */
+  name: string
+  /** 房间id */
+  roomId: number
+  /** 最新消息 */
+  text: string
+  /** 房间类型 1群聊 2单聊 */
+  type: RoomTypeEnum
+  /** 未读数 */
+  unreadCount: number
+}
+
+/** 消息已读未读数列表项 */
+export type MsgReadUnReadCountType = {
+  /** 消息 ID */
+  msgId: number
+  /** 已读数 */
+  readCount: number
+  /** 未读数 */
+  unReadCount: number | null
 }

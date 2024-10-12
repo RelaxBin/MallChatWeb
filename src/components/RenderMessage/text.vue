@@ -1,16 +1,11 @@
 <script setup lang="ts">
-import { computed, type PropType } from 'vue'
+import { computed } from 'vue'
 import type { TextBody } from '@/services/types'
 
-const props = defineProps({
-  body: {
-    type: Object as PropType<TextBody>,
-    required: true,
-  },
-})
+const props = defineProps<{ body: TextBody }>()
 
 // 获取所有匹配的字符串
-const urlMap = props.body.urlTitleMap || {}
+const urlMap = props.body.urlContentMap || {}
 const keys = Object.keys(urlMap)
 // 使用匹配字符串创建动态正则表达式，并将文本拆分为片段数组
 const fragments = computed(() => {
@@ -23,7 +18,14 @@ const fragments = computed(() => {
 // 打开链接
 const openUrl = (url: string) => {
   if (!url) return
-  window.open(url, '_blank')
+  // 当没有协议时，自动添加协议
+  window.open(url.startsWith('http') ? url : '//' + url, '_blank')
+}
+
+function onImageLoadError(e: Event) {
+  const target = e.target as HTMLImageElement
+  if (!target) return
+  target.style.opacity = '0'
 }
 </script>
 
@@ -46,9 +48,14 @@ const openUrl = (url: string) => {
         class="text-card"
         @click="openUrl(item.trim())"
       >
-        <span class="text-card-link ellipsis-1"> {{ item.trim() }}</span>
-        <span class="text-card-title ellipsis-2"> {{ urlMap[item] }}</span>
-        <span class="text-card-desc ellipsis-1">暂无描述</span>
+        <div v-if="urlMap[item].image" class="text-card-image-wrapper">
+          <img class="text-card-image" :src="urlMap[item].image" @error="onImageLoadError" />
+        </div>
+        <div class="text-card-link-content">
+          <!-- <span class="text-card-link ellipsis-1"> {{ item.trim() }}</span> -->
+          <span class="text-card-title ellipsis-1"> {{ urlMap[item].title }}</span>
+          <span class="text-card-desc ellipsis-2">{{ urlMap[item].description }}</span>
+        </div>
       </div>
     </template>
   </div>
